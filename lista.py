@@ -1,24 +1,36 @@
-from nodo import nodo
 
-class lista_enlazada:
+class ListaDoblementeEnlazada:
     def __init__(self):
-        self.primero = None
-        self.ultimo = None
-        self.size = 0
+        self.cabeza = None
 
-    def insertar(self, dato):
-        nuevo = nodo(dato=dato)
-        if self.primero == None:
-            self.primero = nuevo
-            self.ultimo = nuevo
-            self.ultimo.siguiente = self.primero
-            self.primero.anterior = self.ultimo
+    def agregar_nodo(self, nuevo_nodo):
+        if self.cabeza is None:
+            self.cabeza = nuevo_nodo
         else:
-            self.ultimo.siguiente = nuevo
-            nuevo.anterior = self.ultimo
-            nuevo.siguiente = self.primero
-            self.primero.anterior = nuevo
-            self.ultimo = nuevo
-        self.size += 1
-    
-    
+            actual = self.cabeza
+            while actual.siguiente:
+                actual = actual.siguiente
+            actual.siguiente = nuevo_nodo
+            nuevo_nodo.anterior = actual
+
+    def ordenar_alfabeticamente(self):
+        actual = self.cabeza
+
+        while actual:
+            siguiente = actual.siguiente
+
+            while siguiente:
+                if actual < siguiente:
+                    actual.dato, siguiente.dato = siguiente.dato, actual.dato
+                    actual.objeto, siguiente.objeto = siguiente.objeto, actual.objeto
+
+                siguiente = siguiente.siguiente  # Añadir esta línea para avanzar al siguiente nodo
+
+            actual = actual.siguiente   
+
+
+    def imprimir_lista(self):
+        actual = self.cabeza
+        while actual:
+            print(f"Dato: {actual.dato}, Objeto: {actual.objeto}")
+            actual = actual.siguiente 

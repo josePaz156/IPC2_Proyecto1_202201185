@@ -1,10 +1,15 @@
+from lista import ListaDoblementeEnlazada
 
-class nodo():
-    def __init__(self, nombre, R, C, F, S, patrones):
-        self.nombre = nombre
-        self.R = R
-        self.C = C
-        self.F = F
-        self.S = S
+class Nodo:
+    def __init__(self, dato, objeto):
+        self.dato = dato
+        self.objeto = objeto
         self.siguiente = None
         self.anterior = None
+        self.lista_patrones = ListaDoblementeEnlazada()
+
+    def __lt__(self, other):
+        return self.dato < other.dato
+    
+    def __str__(self):
+        return f"Dato: {self.dato}, Objeto: {self.objeto}"
