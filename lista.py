@@ -28,9 +28,17 @@ class ListaDoblementeEnlazada:
 
             actual = actual.siguiente   
 
+    def buscar_nodo(self, dato):
+        actual = self.cabeza
+        while actual:
+            if actual.dato == dato:
+                return actual
+            actual = actual.siguiente
+        return None
+
 
     def imprimir_lista(self):
         actual = self.cabeza
         while actual:
-            print(f"Dato: {actual.dato}, Objeto: {actual.objeto}")
+            print(f"Nombre: {actual.dato}, Datos del piso:{actual.objeto}")
             actual = actual.siguiente 
