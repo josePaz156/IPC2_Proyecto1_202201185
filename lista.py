@@ -24,7 +24,7 @@ class ListaDoblementeEnlazada:
                     actual.dato, siguiente.dato = siguiente.dato, actual.dato
                     actual.objeto, siguiente.objeto = siguiente.objeto, actual.objeto
 
-                siguiente = siguiente.siguiente  # Añadir esta línea para avanzar al siguiente nodo
+                siguiente = siguiente.siguiente
 
             actual = actual.siguiente   
 

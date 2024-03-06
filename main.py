@@ -6,11 +6,21 @@ from patrones import tipo_patrones
 import graphviz
 
 lista_pisos = ListaDoblementeEnlazada()
+lista_pisos_comprados = ListaDoblementeEnlazada()
 
-cargar_archivo = input("Ingrese la ruta del archivo: " )
+xml_file = None
+
+while True:
+    try:
+        cargar_archivo = input("Ingrese la ruta del archivo: " )
+        xml_file = open(cargar_archivo)
+        break
+    except FileNotFoundError as file_err:
+        print(f"Error: El archivo {cargar_archivo} no se encuentra.")
+        # Asignar un valor por defecto (puede ser None u otro valor que tenga sentido para tu aplicación)
+        xml_file = None
 
 try:
-    xml_file = open(cargar_archivo)
     if xml_file.readable():
         xml_data = ET.fromstring(xml_file.read())
         lst_pisos = xml_data.findall('piso')
@@ -35,6 +45,8 @@ try:
         lista_pisos.ordenar_alfabeticamente()
     else:
         print(False)
+        print("No se encontro el archivo seleccionado intente nuevamente: ")
+
 except Exception as err:
     print("Error", err)
 finally:
@@ -47,10 +59,7 @@ def imprimir_menu():
     print("Opcion 2: Modificar piso")
     print("Opcion 3: Salir")
 
-def mostar_pisos():
-        
-    # Pedir al usuario que seleccione un piso
-    piso_seleccionado = input("Ingrese el nombre del piso que desea comprar: ")
+def comprar_piso(piso_seleccionado):
 
     # Buscar el piso seleccionado en la lista
     nodo_piso = lista_pisos.buscar_nodo(piso_seleccionado)
@@ -75,13 +84,15 @@ def mostar_pisos():
         else:
             print(f"No se encontró el patrón con código '{codigo_seleccionado}'. Inténtalo de nuevo.")
 
+        agregar_piso_comprado(codigo_seleccionado, nodo_piso)
+
     else:
         print(f"No se encontró el piso '{piso_seleccionado}'. Inténtalo de nuevo.")
-
+    
 
 def mostrar_patron_grafico(piso_actual, patron_elegido):
     # Crear un gráfico Graphviz
-    dot = graphviz.Digraph(comment='Patrón del Piso')
+    dot = graphviz.Digraph(comment='Patrón del Piso', format='png', graph_attr={'rankdir': 'TB'})
 
     # Obtener las dimensiones de la matriz RxC
     R = piso_actual.objeto.R
@@ -94,11 +105,44 @@ def mostrar_patron_grafico(piso_actual, patron_elegido):
             valor_celda = patron_elegido.contenido[i * C + j]
 
             # Agregar nodo al gráfico
-            dot.node(f'{i}_{j}', label='', shape='square', style='filled', fillcolor='white' if valor_celda == 'B' else 'black')
+            dot.node(f'{i}_{j}', label='', shape='square', style='filled', fillcolor='white' if valor_celda == 'B' else 'black', pos=f'{j},{-i}')
+
+            # Agregar conexiones entre nodos para formar la matriz
+            if i > 0:  # Cambiando la condición a i > 0
+                dot.edge(f'{i-1}_{j}', f'{i}_{j}')  # Conexión vertical
+
 
     # Guardar y visualizar el gráfico
-    dot.render('patron_piso', format='png', engine='dot', cleanup=True)
+    dot.render('patron_piso', format='png', cleanup=True)
     dot.view('patron_piso')
+
+def agregar_piso_comprado(codigo_patron, piso_comprado):
+    # Verifica que piso_comprado sea un objeto tipo_piso
+    if isinstance(piso_comprado.objeto, tipo_piso):
+        new_piso = Nodo(codigo_patron, piso_comprado)
+        lista_pisos_comprados.agregar_nodo(new_piso)
+        lista_pisos_comprados.ordenar_alfabeticamente()
+    else:
+        print("Error: El piso_comprado no contiene un objeto tipo_piso.")
+
+def mostrar_piso_comprado():
+    print("----------Detalles del piso----------")
+
+    recorrer_lista = lista_pisos_comprados.cabeza
+
+    while recorrer_lista:
+        piso_actual = recorrer_lista.objeto
+        print(f'Piso: {piso_actual.dato}')
+        print(f'Dimensiones: {piso_actual.objeto.R}*{piso_actual.objeto.C}')
+        print(f'Costo volteo: {piso_actual.objeto.F}')
+        print(f'Costo intercambio: {piso_actual.objeto.S}')
+        print(f'Patron elegido: {recorrer_lista.dato}')
+        print("Patrones disponibles")
+        for patron in piso_actual.objeto.patrones:
+            print(f"  - Código: {patron.codigo}, Patron: {patron.contenido}")
+        recorrer_lista = recorrer_lista.siguiente
+        print('\n')
+
 
 while True:
 
@@ -112,16 +156,22 @@ while True:
         while actual:
             print(f"  - {actual.dato}")
             actual = actual.siguiente
-    
-        mostar_pisos()
+
+        # Pedir al usuario que seleccione un piso
+        piso_seleccionado = input("Ingrese el nombre del piso que desea comprar: ")
+        comprar_piso(piso_seleccionado)
         
 
     elif opcion == "2":
-        # Otra acción que desees realizar
-        print("Realizando otra acción...")
+        
+        if (lista_pisos_comprados.cabeza == None):
+            print("No hay pisos comprados.")
+        else:
+            mostrar_piso_comprado()
+            piso_editar = input("Ingrese el piso que desea editar: ")
+            comprar_piso(piso_seleccionado)
 
     elif opcion == "3":
-        # Opción para salir del programa
         print("Saliendo del programa. ¡Hasta luego!")
         break
 
